@@ -1,0 +1,7 @@
+---
+- include: aci_tenant.yaml
+- include: aci_vrf.yaml
+- include: aci_bd.yaml
+- include: aci_ap.yaml
+- include: aci_epg.yaml
+- include: aci_rules.yaml

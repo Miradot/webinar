@@ -1,0 +1,92 @@
+# VARIABLES DECLARED IN terraform.tvars
+variable "ACI_URL" {}
+variable "ACI_USER" {}
+variable "ACI_PASS" {}
+
+# LOCAL VARIABLES
+variable "contracts" {
+  description = "Create EPGs with these names"
+  default     = [
+      {contract = "ping", prot: "icmp", port: "icmp"},
+      {contract = "db", prot: "tcp", port: "3306"},
+  ]
+}
+
+# ACI PROVIDER
+provider "aci" {
+    username    = var.ACI_USER
+    password    = var.ACI_PASS
+    url         = var.ACI_URL
+    insecure    = true
+}
+
+#######################
+#### ACI RESOURCES ####
+#######################
+
+# CREATE CONTRACT IN TENANT
+resource "aci_contract" "aci_contract" {
+    count       = length(var.contracts)
+    tenant_dn   = "uni/tn-acc_openshift"
+    name        = lookup(var.contracts[count.index], "contract")
+}
+
+# CREATE SUBJECT AND APPLY TO CONTRACT
+resource "aci_contract_subject" "aci_contract_subject" {
+    count         = length(var.contracts)
+    contract_dn   = aci_contract.aci_contract[count.index].id
+    name          = lookup(var.contracts[count.index], "contract")
+    relation_vz_rs_subj_filt_att = [aci_filter.aci_filter[count.index].name]
+}
+
+# CREATE FILTER IN TENANT
+resource "aci_filter" "aci_filter" {
+    count     = length(var.contracts)
+    tenant_dn = "uni/tn-acc_openshift"
+    name      = lookup(var.contracts[count.index], "contract")
+}
+
+# CREATE FILTER ENTRY AN APPLY TO FILTER
+resource "aci_filter_entry" "filter_entry" {
+    count       = length(var.contracts)
+    name        = lookup(var.contracts[count.index], "contract")
+    filter_dn   = aci_filter.aci_filter[count.index].id
+    ether_t     = "ip"
+    prot        = lookup(var.contracts[count.index], "prot")
+    d_from_port = lookup(var.contracts[count.index], "port") != "icmp" ? lookup(var.contracts[count.index], "port") : ""
+    d_to_port   = lookup(var.contracts[count.index], "port") != "icmp" ? lookup(var.contracts[count.index], "port") : ""
+}
+
+# CREATE EPG WEB
+resource "aci_application_epg" "cisco_epg_web" {
+    application_profile_dn = "uni/tn-acc_openshift/ap-kubernetes"
+    relation_fv_rs_bd      = "kube-pod-bd"
+    name                   = "web"
+    relation_fv_rs_prov    = ["health-check", "default"]
+    relation_fv_rs_cons    = ["kube-api", "dns", "db", "ping"]
+    relation_fv_rs_dom_att = ["uni/vmmp-OpenShift/dom-acc_openshift"]
+    relation_fv_rs_graph_def = []
+  lifecycle {
+    ignore_changes = [relation_fv_rs_graph_def]
+  }
+}
+
+# CREATE EPG DB
+resource "aci_application_epg" "cisco_epg_db" {
+    application_profile_dn = "uni/tn-acc_openshift/ap-kubernetes"
+    relation_fv_rs_bd      = "kube-pod-bd"
+    name                   = "db"
+    relation_fv_rs_prov    = ["health-check", "db", "ping"]
+    relation_fv_rs_cons    = ["kube-api", "dns"]
+    relation_fv_rs_dom_att = ["uni/vmmp-OpenShift/dom-acc_openshift"]
+}
+
+module "customer_1" {
+    source = "./aci_customer_module"
+    tenant_name = "NEW_TENANT_DEMO_CUSTOMER_1"
+    vrf_name = "test"
+    bd_name = "test"
+    epg_name = "test"
+    ap_name = "test"
+    network = "1.1.1.1"
+}

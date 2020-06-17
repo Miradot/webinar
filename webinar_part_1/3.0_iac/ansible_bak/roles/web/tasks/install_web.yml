@@ -1,0 +1,29 @@
+---
+- name: apt-get update
+  apt:
+    update_cache: yes
+
+- name: install packages
+  apt:
+    name:
+    - apache2
+    - libapache2-mod-php
+    - php-mysql
+
+- name: remove old index.html
+  file:
+    path: /var/www/html/index.html
+    state: absent
+
+- name: copy html page
+  copy:
+    src: ../files/
+    dest: /var/www/html/
+    owner: www-data
+    group: www-data
+    mode: '0644'
+
+- name: restart apache2
+  service:
+    name: apache2
+    state: restarted

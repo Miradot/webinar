@@ -1,0 +1,16 @@
+---
+- name: set hostname and name server
+  nxos_system:
+    hostname: "{{ inventory_hostname }}"
+    name_servers: "{{ hostvars[inventory_hostname].dns }}"
+
+- name: set ntp server
+  nxos_ntp:
+    server: "{{ item }}"
+  loop: "{{ hostvars[inventory_hostname].ntp }}"
+
+- name: enable features
+  nxos_feature:
+    feature: "{{ item }}"
+    state: enabled
+  loop: "{{ hostvars[inventory_hostname].features }}"

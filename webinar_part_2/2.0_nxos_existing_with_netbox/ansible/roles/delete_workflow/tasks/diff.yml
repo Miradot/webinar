@@ -1,0 +1,36 @@
+---
+- name: gather configuration with ansible module
+  nxos_facts:
+    gather_subset:
+      - "!hardware"
+
+- name: create tmp configuration file in host_vars from gathered information
+  copy:
+    content: "{{ ansible_facts | to_nice_yaml }}"
+    dest: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}_tmp"
+
+- name: gather and reparse configuration tmp file in host_vars with miradot library
+  nxos_harvester:
+    filename: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}"
+    hostname: "{{ inventory_hostname }}"
+    username: "{{ ansible_user }}"
+    password: "{{ ansible_password }}"
+    nxapi_port: "{{ nxapi_port }}"
+    mode: "diff"
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+
+- name: diff between original file and tmp file with miradot library
+  nxos_differ:
+    hostname: "{{ inventory_hostname }}"
+    username: "{{ ansible_user }}"
+    password: "{{ ansible_password }}"
+    nxapi_port: "{{ nxapi_port }}"
+    src_file: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}"
+    dst_file: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}_tmp"
+  register: remove
+
+- name: remove tmp configuration file
+  file:
+    path: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}_tmp"
+    state: absent

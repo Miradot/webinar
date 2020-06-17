@@ -1,0 +1,17 @@
+---
+- hosts: apic
+  connection: local
+  gather_facts: no
+
+  vars_prompt:
+    - name: "user"
+      prompt: "Username"
+      private: no
+    - name: "pass"
+      prompt: "Password"
+      private: yes
+
+  tasks:
+    - name: create customer in aci
+      include_role:
+        name: aci_add_customer

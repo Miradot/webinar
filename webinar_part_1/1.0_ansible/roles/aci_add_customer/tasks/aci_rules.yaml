@@ -1,0 +1,70 @@
+---
+- name: adding contracts
+  aci_contract:
+    validate_certs: no
+    hostname: "{{ inventory_hostname }}"
+    username: "{{ user }}"
+    password: "{{ pass }}"
+    tenant: "{{ TENANT_NAME }}"
+    contract: "{{ item.contract }}"
+  loop: "{{ CONTRACTS }}"
+
+- name: adding filters
+  aci_filter:
+    validate_certs: no
+    hostname: "{{ inventory_hostname }}"
+    username: "{{ user }}"
+    password: "{{ pass }}"
+    tenant: "{{ TENANT_NAME }}"
+    filter: "{{ item.filter }}"
+  loop: "{{ CONTRACTS }}"
+
+- name: adding filter entries
+  aci_filter_entry:
+    validate_certs: no
+    hostname: "{{ inventory_hostname }}"
+    username: "{{ user }}"
+    password: "{{ pass }}"
+    tenant: "{{ TENANT_NAME }}"
+    dst_port: "{{ item.port }}"
+    entry: "{{ item.filter }}"
+    ether_type: "ip"
+    filter: "{{ item.filter }}"
+    ip_protocol: "tcp"
+  loop: "{{ CONTRACTS }}"
+
+- name: adding subjects
+  aci_contract_subject:
+    validate_certs: no
+    hostname: "{{ inventory_hostname }}"
+    username: "{{ user }}"
+    password: "{{ pass }}"
+    tenant: "{{ TENANT_NAME }}"
+    subject: "{{ item.contract }}"
+    contract: "{{ item.contract }}"
+  loop: "{{ CONTRACTS }}"
+
+- name: bind contract subjects to filters
+  aci_contract_subject_to_filter:
+    validate_certs: no
+    hostname: "{{ inventory_hostname }}"
+    username: "{{ user }}"
+    password: "{{ pass }}"
+    tenant: "{{ TENANT_NAME }}"
+    filter: "{{ item.filter }}"
+    subject: "{{ item.contract }}"
+    contract: "{{ item.contract }}"
+  loop: "{{ CONTRACTS }}"
+
+- name: binding contracts to epgs
+  aci_epg_to_contract:
+    validate_certs: no
+    hostname: "{{ inventory_hostname }}"
+    username: "{{ user }}"
+    password: "{{ pass }}"
+    tenant: "{{ TENANT_NAME }}"
+    ap: "{{ AP_NAME }}"
+    contract: "{{ item.contract }}"
+    contract_type: "{{ item.contract_type }}"
+    epg: "{{ item.epg }}"
+  loop: "{{ CONTRACT_BINDINGS }}"

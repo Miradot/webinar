@@ -1,0 +1,178 @@
+## VARIABLES DECLARED IN terraform.tvars
+variable "OSHIFT_URL" {}
+variable "OSHIFT_TOKEN" {}
+
+# KUBERNETES PROVIDER
+provider "kubernetes" {
+  load_config_file   = "false"
+  host               = var.OSHIFT_URL
+  token              = var.OSHIFT_TOKEN
+  insecure           = true
+}
+
+##############################
+#### KUBERNETES RESOURCES ####
+##############################
+
+# CREATE WEB POD WITH IMAGE APACHE2+PHP AND EXPOSE PORT 80
+resource "kubernetes_pod" "apache" {
+  metadata {
+    annotations = {
+      "opflex.cisco.com/endpoint-group" = jsonencode({app-profile="kubernetes",name="web",tenant="acc_openshift"})
+      "openshift.io/scc" = "anyuid"
+    }
+    name = "web"
+    namespace = "demo"
+    labels = {
+      App = "apache"
+    }
+  }
+  spec {
+    security_context {
+      fs_group            = 0
+      run_as_group        = 0
+      run_as_non_root     = false
+      run_as_user         = 0
+      supplemental_groups = []
+      se_linux_options {
+        level = "s0:c15,c0"
+      }
+    }
+    node_selector = {"node-role.kubernetes.io/compute" = "true"}
+
+    container {
+      image = "php:7.2-apache"
+      name = "web"
+
+      port {
+        container_port = 80
+      }
+      security_context {
+        allow_privilege_escalation = false
+        privileged = false
+        read_only_root_filesystem = false
+        run_as_group = 0
+        run_as_non_root = false
+        run_as_user = 0
+
+        capabilities {
+          add = []
+          drop = [
+            "MKNOD"]
+        }
+      }
+    }
+  }
+  lifecycle {
+    ignore_changes = []
+  }
+}
+
+# CREATE WEB SERVICE AND EXPOSE PORT 80
+resource "kubernetes_service" "apache" {
+  metadata {
+    name = "web"
+    namespace = "demo"
+  }
+  spec {
+    selector = {
+      App = kubernetes_pod.apache.metadata[0].labels.App
+    }
+    port {
+      port        = 80
+      target_port = 80
+    }
+    type = "LoadBalancer"
+  }
+  lifecycle {
+    ignore_changes = [spec]
+  }
+}
+
+# CREATE DB POD WITH IMAGE MARIADB AND EXPOSE PORT 3306
+resource "kubernetes_pod" "mariadb" {
+  metadata {
+    annotations = {
+      "opflex.cisco.com/endpoint-group" = jsonencode({app-profile="kubernetes",name="db",tenant="acc_openshift"})
+      "openshift.io/scc" = "anyuid"
+    }
+    name = "db"
+    namespace = "demo"
+    labels = {
+      App = "mariadb"
+    }
+  }
+
+  spec {
+    node_selector = {"node-role.kubernetes.io/compute" = "true"}
+
+    container {
+      image = "mariadb:latest"
+      name = "db"
+
+      port {
+        container_port = 3306
+      }
+      env {
+        name = "MYSQL_ROOT_PASSWORD"
+        value = ".sweetpwd."
+      }
+      env {
+        name = "MYSQL_DATABASE"
+        value = "test_db"
+      }
+      env {
+        name = "MYSQL_USER"
+        value = "test_user"
+      }
+      env {
+        name = "MYSQL_PASSWORD"
+        value = "secretpwd"
+      }
+      security_context {
+        allow_privilege_escalation = false
+        privileged                 = false
+        read_only_root_filesystem  = false
+        run_as_group               = 0
+        run_as_non_root            = false
+        run_as_user                = 0
+
+        capabilities {
+          add  = []
+          drop = ["MKNOD"]
+        }
+      }
+    }
+  }
+  lifecycle {
+    ignore_changes = [spec]
+  }
+}
+
+# CREATE DB SERVICE AND EXPOSE PORT 3306
+resource "kubernetes_service" "mariadb" {
+  metadata {
+    name = "db"
+    namespace = "demo"
+  }
+  spec {
+    selector = {
+      App = kubernetes_pod.mariadb.metadata[0].labels.App
+    }
+    port {
+      port        = 3306
+      target_port = 3306
+    }
+
+    type = "NodePort"
+  }
+}
+
+#################
+#### OUTPUTS ####
+#################
+
+# PRINT OUT THE WEB LB-IP
+output "web_lb_ip" {
+  value = kubernetes_service.apache.load_balancer_ingress[0].ip
+}

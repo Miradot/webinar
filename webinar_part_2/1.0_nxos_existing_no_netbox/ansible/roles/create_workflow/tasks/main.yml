@@ -1,0 +1,5 @@
+---
+- include: system.yml
+- include: vlans.yml
+- include: interfaces.yml
+- include: bgp.yml

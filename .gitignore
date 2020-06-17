@@ -1,0 +1,16 @@
+webinar_part_1/1.0_ansible/group_vars/apic
+webinar_part_1/1.0_ansible/group_vars/webservers
+webinar_part_1/1.0_ansible/hosts
+webinar_part_1/2.0_terraform/terraform.tfvars
+webinar_part_1/3.0_iac/terraform/terraform.tfvars
+webinar_part_1/3.0_iac/terraform/terraform.tfstate*
+webinar_part_1/3.0_iac/ansible/
+webinar_part_1/3.0_iac/ansible_bak/hosts
+webinar_part_1/3.0_iac/ansible_bak/group_vars/all
+webinar_part_1/3.0_iac/ansible_bak/group_vars/vault
+webinar_part_2/2.0_nxos_existing_with_netbox/ansible/hosts
+webinar_part_2/2.0_nxos_existing_with_netbox/ansible/group_vars/all
+webinar_part_2/2.0_nxos_existing_with_netbox/ansible/group_vars/vault
+webinar_part_2/1.0_nxos_existing_no_netbox/ansible/hosts
+webinar_part_2/1.0_nxos_existing_no_netbox/ansible/group_vars/all
+webinar_part_2/1.0_nxos_existing_no_netbox/ansible/group_vars/vault

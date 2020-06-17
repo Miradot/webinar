@@ -1,0 +1,25 @@
+---
+- hosts: all
+  gather_facts: false
+
+  vars_files:
+   - "{{ playbook_dir }}/group_vars/vault"
+
+  tasks:
+    - name: gather configuration with ansible module
+      nxos_facts:
+        gather_subset:
+          - "!hardware"
+
+    - name: create configuration file in host_vars from gathered information
+      copy:
+        content: "{{ ansible_facts | to_nice_yaml }}"
+        dest: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}"
+
+    - name: gather and reparse configuration file in host_vars with miradot library
+      nxos_harvester:
+        filename: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}"
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        nxapi_port: "{{ nxapi_port }}"

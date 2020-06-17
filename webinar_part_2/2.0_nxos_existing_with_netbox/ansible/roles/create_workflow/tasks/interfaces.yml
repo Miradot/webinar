@@ -1,0 +1,42 @@
+---
+- name: set interface description
+  nxos_interfaces:
+    config:
+      - name: "{{ item.name }}"
+        description: "{{ item.description }}"
+    state: replaced
+  when: item.name != "mgmt0" and not item.ipv4
+  loop: "{{ hostvars[inventory_hostname].interfaces }}"
+
+- name: delete interface description
+  nxos_interfaces:
+    config:
+      - name: "{{ item.name }}"
+    state: deleted
+  when: item.name != "mgmt0" and not item.ipv4 and not item.description
+  loop: "{{ hostvars[inventory_hostname].interfaces }}"
+
+- name: set interface l2 attributes
+  nxos_l2_interfaces:
+    config:
+      - name: "{{ item.name }}"
+        access:
+          vlan: "{{ item.vlan_id }}"
+  when: item.vlan_id and not item.ipv4 and item.name != "mgmt0"
+  loop: "{{ hostvars[inventory_hostname].interfaces }}"
+
+- name: delete interface l2 attributes
+  nxos_l2_interfaces:
+    config:
+      - name: "{{ item.name }}"
+    state: deleted
+  when: not item.vlan_id and not item.ipv4 and item.name != "mgmt0"
+  loop: "{{ hostvars[inventory_hostname].interfaces }}"
+
+- name: shutdown interface if absent
+  nxos_interfaces:
+    config:
+      - name: "{{ item.name }}"
+        enabled: False
+  when: item.name != "mgmt0" and not item.ipv4 and not item.description and not item.vlan_id and item.state == "absent"
+  loop: "{{ hostvars[inventory_hostname].interfaces }}"

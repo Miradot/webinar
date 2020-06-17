@@ -1,0 +1,7 @@
+pynetbox
+pyyaml
+netaddr
+ansible-vault
+flask
+pythondialog
+napalm

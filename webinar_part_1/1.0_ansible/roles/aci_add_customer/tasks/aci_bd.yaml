@@ -1,0 +1,22 @@
+---
+- name: adding bridge domain
+  aci_bd:
+    validate_certs: no
+    hostname: "{{ inventory_hostname }}"
+    username: "{{ user }}"
+    password: "{{ pass }}"
+    tenant: "{{ TENANT_NAME }}"
+    bd: "{{ BD_NAME }}"
+    vrf: "{{ VRF_NAME }}"
+
+- name: adding subnet to bridge domain
+  aci_bd_subnet:
+    validate_certs: no
+    hostname: "{{ inventory_hostname }}"
+    username: "{{ user }}"
+    password: "{{ pass }}"
+    tenant: "{{ TENANT_NAME }}"
+    bd: "{{ BD_NAME }}"
+    gateway: "{{ BD_GATEWAY }}"
+    mask: "{{ BD_GATEWAY_MASK }}"
+    scope: [public]

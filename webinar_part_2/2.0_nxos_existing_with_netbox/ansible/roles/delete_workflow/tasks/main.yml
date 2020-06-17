@@ -1,0 +1,4 @@
+---
+- include: diff.yml
+- include: system.yml
+- include: vlans.yml

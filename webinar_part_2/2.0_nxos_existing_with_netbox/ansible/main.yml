@@ -1,0 +1,17 @@
+---
+- hosts: all
+  gather_facts: false
+
+  vars_files:
+   - "{{ playbook_dir }}/group_vars/vault"
+
+  tasks:
+   - name: create
+     include_role:
+       name: create_workflow
+     when: inventory_hostname != "backup_robot"
+
+   - name: delete
+     include_role:
+       name: delete_workflow
+     when: inventory_hostname != "backup_robot"

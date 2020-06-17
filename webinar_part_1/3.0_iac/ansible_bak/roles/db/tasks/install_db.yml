@@ -1,0 +1,42 @@
+---
+- name: apt-get update
+  apt:
+    update_cache: yes
+
+- name: install packages
+  apt:
+    name:
+    - mariadb-server
+    - python3
+    - python3-pip
+    - python3-setuptools
+    - python3-pymysql
+
+- name: create database test_db
+  mysql_db:
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    name: test_db
+    state: present
+    collation: utf8_general_ci
+
+- name: create a database user test_user
+  mysql_user: login_unix_socket=/var/run/mysqld/mysqld.sock name=test_user password=secretpwd priv=*.*:ALL host='%' state=present
+
+- name: copy sample db data
+  copy:
+    src: ../files/dump.sql
+    dest: /tmp/dump.sql
+
+- name: insert sample data
+  shell: cat /tmp/dump.sql | mysql -u test_user -psecretpwd test_db
+
+- name: change listening ip for mariadb
+  lineinfile:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    regexp: "^bind-address"
+    line: "bind-address		= {{ inventory_hostname }}"
+
+- name: ensure mariadb-server is started
+  service:
+    name: mysql
+    state: restarted

@@ -1,0 +1,10 @@
+---
+- name: remove apache
+  apt:
+    name: apache2
+    state: absent
+
+- name: remove old files
+  file:
+    path: /var/www
+    state: absent

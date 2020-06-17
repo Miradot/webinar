@@ -1,0 +1,113 @@
+# This file is a template, and might need editing before it works on your project.
+# Official image for Hashicorp's Terraform. It uses light image which is Alpine
+# based as it is much lighter.
+#
+# Entrypoint is also needed as image by default set `terraform` binary as an
+# entrypoint.
+image:
+  name: rflume/terraform-aws-ansible:tf-0.12.21
+  entrypoint:
+    - '/usr/bin/env'
+    - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+
+variables:
+  PLAN: plan.tfplan
+  DESTROYPLAN: dstry.tfplan
+
+cache:
+  paths:
+    - .terraform
+
+before_script:
+  - export TF_VAR_VC_PASS=$TF_VC_PASS
+  - export TF_VAR_ACI_PASS=$TF_ACI_PASS
+  - export TF_VAR_OSHIFT_TOKEN=$TF_OSHIFT_TOKEN
+  - cd terraform
+  - terraform init
+  - git remote set-url origin http://$CI_PUSH_USER:$CI_PUSH_TOKEN@$CI_PUSH_URL/$CI_PUSH_USER/$CI_PROJECT_NAME.git
+  - git config --global user.email '$CI_PUSH_USER@example.se'
+  - git config --global user.name '$CI_PUSH_USER'
+  - git checkout $CI_COMMIT_REF_NAME
+  - git pull
+
+stages:
+  - validate
+  - plan
+  - apply
+  - destroy
+
+validate:
+  stage: validate
+  script:
+    - terraform validate
+  only:
+    - master
+
+plan:
+  stage: plan
+  script:
+    - terraform plan -out=$PLAN -refresh=false
+  dependencies:
+    - validate
+  after_script:
+    - git add *.tfstate
+    - git commit -m '[skip ci] commit from CI runner'
+    - git push origin master
+  artifacts:
+    name: plans
+    paths:
+      - terraform/$PLAN
+  only:
+    - master
+
+apply:
+  stage: apply
+  script:
+    - cp ../ansible_bak/ansible.cfg ~/.ansible.cfg
+    - echo "10.145.145.200 netbox.miradot.local" >> /etc/hosts
+    - echo $ANSIBLE_VAULT_PASSWORD > .vault_password.txt
+    - cp ../ansible_bak/id_rsa.pub ~/.ssh/
+    - chmod 600 ../ansible_bak/id_rsa
+    - terraform apply -input=false $PLAN
+#    - chmod 600 ../ansible/oshift.pem
+#    - scp -i ../ansible/oshift.pem -r ../web2.0 centos@10.5.10.10:~/
+#    - ansible-playbook ../ansible/main.yml -i ../ansible/hosts --private-key="../ansible/oshift.pem"
+  after_script:
+    - git add *.tfstate
+    - git commit -m '[skip ci] commit from CI runner'
+    - git push origin master
+  dependencies:
+    - plan
+  artifacts:
+    name: tfstate
+    paths:
+      - ./terraform.tfstate
+  only:
+    - master
+
+destroy:
+  stage: destroy
+  before_script:
+    - export TF_VAR_VC_PASS=$TF_VC_PASS
+    - export TF_VAR_ACI_PASS=$TF_ACI_PASS
+    - export TF_VAR_OSHIFT_TOKEN=$TF_OSHIFT_TOKEN
+    - git remote set-url origin http://$CI_PUSH_USER:$CI_PUSH_TOKEN@$CI_PUSH_URL/$CI_PUSH_USER/$CI_PROJECT_NAME.git
+    - git config --global user.email '$CI_PUSH_USER@example.se'
+    - git config --global user.name '$CI_PUSH_USER'
+    - git checkout master
+    - git pull
+    - cd terraform
+    - terraform init
+  script:
+    - terraform plan -destroy -out=$DESTROYPLAN
+    - terraform apply -auto-approve $DESTROYPLAN
+  after_script:
+    - git add *.tfstate
+    - git commit -m '[skip ci] commit from CI runner'
+    - git push origin master
+  dependencies:
+    - apply
+    - plan
+  when: manual
+  only:
+    - master

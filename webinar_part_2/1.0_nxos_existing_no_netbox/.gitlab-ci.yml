@@ -1,0 +1,25 @@
+image:
+  name: rflume/terraform-aws-ansible:tf-0.12.21
+  entrypoint:
+    - '/usr/bin/env'
+    - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+
+before_script:
+  - echo "10.145.145.200 netbox.miradot.local" >> /etc/hosts
+  - echo "10.145.145.50 iacworkshop-spine1" >> /etc/hosts
+  - echo "10.145.145.51 iacworkshop-spine2" >> /etc/hosts
+  - echo "10.145.145.52 iacworkshop-leaf1" >> /etc/hosts
+  - pip install pynetbox netaddr pyyaml
+
+stages:
+  - apply
+
+apply:
+  stage: apply
+  script:
+    - cd ansible
+    - chmod o-w .
+    - echo $ANSIBLE_VAULT_PASSWORD > .vault_password.txt
+    - ansible-playbook main.yml -i hosts --vault-password-file .vault_password.txt
+  only:
+    - master

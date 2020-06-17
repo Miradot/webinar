@@ -1,0 +1,9 @@
+---
+- name: adding vrf
+  aci_vrf:
+    validate_certs: no
+    hostname: "{{ inventory_hostname }}"
+    username: "{{ user }}"
+    password: "{{ pass }}"
+    vrf: "{{ VRF_NAME }}"
+    tenant: "{{ TENANT_NAME }}"

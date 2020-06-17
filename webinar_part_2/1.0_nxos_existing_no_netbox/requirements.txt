@@ -1,0 +1,4 @@
+pynetbox
+pyyaml
+netaddr
+ansible-vault

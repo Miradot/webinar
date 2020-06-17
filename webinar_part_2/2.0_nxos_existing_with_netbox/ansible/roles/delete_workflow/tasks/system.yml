@@ -1,0 +1,12 @@
+---
+- name: remove ntp
+  nxos_ntp:
+    server: "{{ item }}"
+    state: absent
+  loop: "{{ remove['ansible_facts']['ntp'] }}"
+
+- name: remove features
+  nxos_feature:
+    feature: "{{ item }}"
+    state: disabled
+  loop: "{{ remove['ansible_facts']['features'] }}"

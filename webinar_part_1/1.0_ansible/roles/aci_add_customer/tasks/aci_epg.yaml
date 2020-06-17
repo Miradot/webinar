@@ -1,0 +1,12 @@
+---
+- name: adding epgs
+  aci_epg:
+    validate_certs: no
+    hostname: "{{ inventory_hostname }}"
+    username: "{{ user }}"
+    password: "{{ pass }}"
+    tenant: "{{ TENANT_NAME }}"
+    ap: "{{ AP_NAME }}"
+    epg: "{{ item }}"
+    bd: "{{ BD_NAME }}"
+  loop: "{{ EPGS }}"

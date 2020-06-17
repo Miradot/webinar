@@ -1,0 +1,57 @@
+---
+- hosts: web
+  gather_facts: no
+  become: true
+
+  vars_files:
+   - "{{ playbook_dir }}/group_vars/vault"
+
+  roles:
+    - role: web
+
+#- hosts: dns
+#  gather_facts: no
+#  become: true
+#
+#  vars_files:
+#    - "{{ playbook_dir }}/group_vars/vault"
+#
+#  tasks:
+#    - name: set dns
+#      lineinfile:
+#        path: /etc/bind/db.miradot.local
+#        line: "{{ item }}"
+#      loop:
+#        - "lampexample IN A 10.140.140.100"
+#        - "web IN A 10.140.140.100"
+#        - "db IN A 10.141.141.100"
+#
+#    - name: restart bind9
+#      service:
+#        name: bind9
+#        state: restarted
+#
+#- hosts: localhost
+#  gather_facts: no
+#
+#  vars_files:
+#    - "{{ playbook_dir }}/group_vars/vault"
+#
+#  tasks:
+#    - name: add ips to netbox
+#      uri:
+#        url: http://netbox.miradot.local/api/ipam/ip-addresses/
+#        method: POST
+#        body_format: json
+#        headers:
+#          Authorization: "Token 59a3e20d36be42fbda2aeb7665419a8b222c128c"
+#          Accept: "application/json"
+#          Content-Type: "application/json"
+#        body: '{"address": "{{ item }}/24", "vrf": 1, "tenant": 1}'
+#        status_code: 201
+#      loop:
+#        - 10.140.140.1
+#        - 10.141.141.1
+#        - 10.140.140.100
+#        - 10.141.141.100
+#

@@ -1,0 +1,25 @@
+---
+- name: create vlans
+  nxos_vlan:
+    vlan_id: "{{ item.vlan_id }}"
+    name: "{{ item.vlan_name }}"
+    mapped_vni: "200{{ item.vlan_id }}"
+  when: item.vlan_id
+  loop: "{{ hostvars[inventory_hostname].interfaces }}"
+
+- name: create vni configuration (vtep)
+  nxos_vxlan_vtep_vni:
+    interface: nve1
+    vni: "200{{ item.vlan_id }}"
+    multicast_group: 239.0.0.1
+  when: item.vlan_id
+  loop: "{{ hostvars[inventory_hostname].interfaces }}"
+
+- name: create vni configuration (evpn)
+  nxos_evpn_vni:
+    vni: "200{{ item.vlan_id }}"
+    route_distinguisher: auto
+    route_target_import: auto
+    route_target_export: auto
+  when: item.vlan_id
+  loop: "{{ hostvars[inventory_hostname].interfaces }}"

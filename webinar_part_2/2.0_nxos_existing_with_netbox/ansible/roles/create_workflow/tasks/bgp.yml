@@ -1,0 +1,26 @@
+---
+- name: configure bgp router
+  nxos_bgp:
+    asn: "{{ item.localas }}"
+    router_id: "{{ item.routerid }}"
+  loop: "{{ hostvars[inventory_hostname].bgpsystem }}"
+
+- name: configure bgp neighbor
+  nxos_bgp_neighbor:
+    asn: "{{ item.0.localas }}"
+    neighbor: "{{ item.1.neighbor }}"
+    local_as: "{{ item.0.localas }}"
+    remote_as: "{{ item.1.remoteas }}"
+  with_nested:
+    - "{{ hostvars[inventory_hostname].bgpsystem }}"
+    - "{{ hostvars[inventory_hostname].bgpneighbors }}"
+
+- name: configure bgp address-family
+  nxos_bgp_neighbor_af:
+    asn: "{{ item.0.localas }}"
+    neighbor: "{{ item.1.neighbor }}"
+    afi: "{{ item.1.afi }}"
+    safi: "{{ item.1.safi }}"
+  with_nested:
+    - "{{ hostvars[inventory_hostname].bgpsystem }}"
+    - "{{ hostvars[inventory_hostname].bgpneighbors }}"

@@ -1,0 +1,10 @@
+---
+- hosts: db
+  gather_facts: no
+  become: true
+
+  vars_files:
+   - "{{ playbook_dir }}/group_vars/vault"
+
+  roles:
+    - role: db

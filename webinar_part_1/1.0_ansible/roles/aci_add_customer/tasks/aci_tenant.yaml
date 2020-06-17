@@ -1,0 +1,9 @@
+---
+- name: adding tenant
+  aci_tenant:
+    validate_certs: no
+    hostname: "{{ inventory_hostname }}"
+    username: "{{ user }}"
+    password: "{{ pass }}"
+    tenant: "{{ TENANT_NAME }}"
+    description: "CREATED WITH ANSIBLE \\o/"
