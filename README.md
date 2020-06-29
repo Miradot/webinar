@@ -31,12 +31,12 @@ server.yml
 These installation instructions assumes you have a python environment with python-pip installed.
 ```
 pip3 install -r requirements.txt
+(OPTION 1) python3 setup_aci.py 
+(OPTION 2) python3 setup_server.py
 ```
 
 ## Usage
 ```
-(OPTION 1) python3 setup_aci.py 
-(OPTION 2) python3 setup_server.py
 (OPTION 1) ansible-playbook aci.yml -i hosts 
 (OPTION 2) ansible-playbook server.yml -i hosts
 ``` 
@@ -61,10 +61,12 @@ pip3 install -r requirements.txt
 * Clones VMware ubuntu_template and spins up two VMs
 
 ## Installation
+```
+python3 setup_tf.py
+```
 
 ## Usage
 ```
-python3 setup_tf.py
 Make changes to aci.tf and vmware.tf to your choosing (or use examples).
 terraform init
 terraform plan
@@ -98,10 +100,10 @@ terraform apply ; yes
 These installation instructions assumes you have a python environment with python-pip installed.
 ```
 pip3 install -r requirements.txt
+`python3 setup_iac.py`
 ```
 
 ## Usage
-* `python3 setup_iac.py`
 * Make changes to aci.tf and vmware.tf to your choosing (or use examples).
 * Create a project in gitlab
     * CI/CD variables needed:
@@ -140,27 +142,32 @@ has been pushed to gitlab it's possible to manage the device(s) with git.
 These installation instructions assumes you have a python environment with python-pip installed.
 ```
 pip3 install -r requirements.txt
+python3 setup.py
+
+Create a project in gitlab
+  CI/CD variables needed:
+      `ANSIBLE_VAULT_PASSWORD` ; Password chosen in setup_iac.py (-pv) 
+
+git clone <url to git project>
+cp -r 1.0_nxos_existing_no_netbox/ <folder in step above>
+cd <folder in step above>/ansible
 ```
 
-## Usage    
-* `python3 setup.py`
-* Create a project in gitlab
-    * CI/CD variables needed:
-        * `ANSIBLE_VAULT_PASSWORD` ; Password chosen in setup_iac.py (-pv) 
-* Clone down your newly created project : `git clone <url>`
-* Copy content of 1.0_nxos_existing_no_netbox folder to your project : `cp -r 1.0_nxos_existing_no_netbox/ <folder in step above>`
-* Enter ansible folder in your project : `cd <folder in step above>/ansible`
-* `ansible-playbook init.yml -i hosts --ask-vault-pass`
-* `cd ..`
-* `git add .`
-* `git commit -m "[skip ci] new host_vars"`
-* `git push`
-* If you get the following error `remote: You are not allowed to push code to this project.` Run the following (substitute for your environment) `git remote set-url origin http://<username>:<cipushtoken>@$<fqdntogitlab>/<username>/<projectname>.git`
-* `git push`
-* Make changes to the ansible/host_vars files according to preferences
-* `git add .`
-* `git commit -m "changes"`
-* `git push`
+## Usage
+```
+ansible-playbook init.yml -i hosts --ask-vault-pass 
+cd ..
+git add .
+git commit -m "[skip ci] new host_vars"
+git push
+If you get the following error `remote: You are not allowed to push code to this project. Run the following (substitute for your environment) git remote set-url origin http://<username>:<cipushtoken>@$<fqdntogitlab>/<username>/<projectname>.git
+git push
+
+Make changes to the ansible/host_vars files according to preferences
+git add .
+git commit -m "changes"
+git push
+```
     
 # NXOS with Ansible, Netbox and Gitlab CI/CD
 ## Prerequisites:
@@ -173,58 +180,67 @@ pip3 install -r requirements.txt
 Will gather information from specified NXOS devices and parse the configuration. After the configuration and files 
 has been pushed to gitlab it's possible to manage the device(s) with git and Netbox.
 
+Netbox support:
+* Name change
+* Description change
+* Access vlan change
+
 ## Installation
 these installation instructions assumes you have a python environment with python-pip installed.
 ```
 pip3 install -r requirements.txt
-```
+python3 setup.py
+scp netbox_tools/webhook_proxy_svc.py <netbox>
 
-## Usage
-* Create a project in gitlab
-    * CI/CD variables needed:
-        - `ANSIBLE_VAULT_PASSWORD` 
-    * Create a pipeline trigger
-* `python3 setup.py` with variables to create group_vars/all, group_vars/vault and hosts with all needed information.
-* Copy `netbox_tools/webhook_proxy_svc.py` to Netbox
-* SSH to Netbox and run
-    ```
-    apt install screen
+ssh <netbox>
     screen
     gunicorn -b :5000 --access-logfile - --error-logfile - webhook_proxy_svc:app
     ctrl + a + d
     exit
-    ```
-* Goto Netbox: `http://\<fqdn>/admin/extras/webhook/`
-    - Name: `interfaces_update`
-    - Object types:` dcim > interface`
-    - `Enabled checked`
-    - `Type create checked`
-    - `Type update checked`
-    - URL: `http://localhost:5000/netbox_webhook/`
-    - HTTP method: `POST`
-    - HTTP content type: `application/json`
-    - Body template: `{"msg": "interfaces updated"}`     
-* Clone down your newly created project : `git clone <url>`
-* Copy content of 2.0_nxos_existing_with_netbox folder to your project : `cp -r 2.0_nxos_existing_with_netbox/ <folder in step above>`
-* Enter ansible folder in your project : `cd <folder in step above>/ansible`
-* `ansible-playbook init.yml -i hosts --ask-vault-pass`
-* `cd ..`
-* `git add .`
-* `git commit -m "[skip ci] new host_vars"`
-* `git push`
-* If you get the following error `remote: You are not allowed to push code to this project.` Run the following (substitute for your environment) `git remote set-url origin http://<username>:<cipushtoken>@$<fqdntogitlab>/<username>/<projectname>.git`
-* `git push`
-* Make changes to the ansible/host_vars files according to preferences
-* `git add .`
-* `git commit -m "changes"`
-* `git push`
-* OR
-* Make Name/Interface changes in Netbox according to preferences
-    - Support:
-        * Name change
-        * Description change
-        * Access vlan change
-* Make description/access vlan changes with sommerjobber tool: `cd netbox_tools` `python3 tool.py`
+
+https://<netbox>/admin/extras/webhook/
+    Name: interfaces_update
+    Object types: dcim > interface
+    Enabled checked
+    Type create checked
+    Type update checked
+    URL: http://localhost:5000/netbox_webhook/
+    HTTP method: POST
+    HTTP content type: application/json
+    Body template: {"msg": "interfaces updated"}
+
+Create a project in gitlab
+    CI/CD variables needed:
+      `ANSIBLE_VAULT_PASSWORD` ; Password chosen in setup_iac.py (-pv) 
+    Create a pipeline trigger    
+
+git clone <url>
+
+cp -r 2.0_nxos_existing_with_netbox/ <folder in step above>
+
+cd <folder in step above>/ansible
+```
+
+## Usage
+```
+ansible-playbook init.yml -i hosts --ask-vault-pass
+cd ..
+git add .
+git commit -m "[skip ci] new host_vars"
+git push
+If you get the following error `remote: You are not allowed to push code to this project.` Run the following (substitute for your environment) `git remote set-url origin http://<username>:<cipushtoken>@$<fqdntogitlab>/<username>/<projectname>.git  
+git push
+
+Make changes to the ansible/host_vars files according to preferences  
+git add .`  
+git commit -m "changes"`  
+git push`  
+
+OR make Name/Interface changes in Netbox according to preferences
+
+OR make changes with sommerjobber tool: `cd netbox_tools` `python3 tool.py`
+
+```
 
 ## Getting help
 
