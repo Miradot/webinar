@@ -212,7 +212,7 @@ https://<netbox>/admin/extras/webhook/
 
 Create a project in gitlab
     CI/CD variables needed:
-      `ANSIBLE_VAULT_PASSWORD` ; Password chosen in setup_iac.py (-pv) 
+      ANSIBLE_VAULT_PASSWORD ; Password chosen in setup_iac.py (-pv) 
     Create a pipeline trigger    
 
 git clone <url>
@@ -232,13 +232,13 @@ git push
 
 Make changes to the ansible/host_vars files according to preferences  
 
-git add .`  
-git commit -m "changes"`  
-git push`  
+git add .
+git commit -m "changes"
+git push
 
 OR make Name/Interface changes in Netbox according to preferences
 
-OR make changes with sommerjobber tool: `cd netbox_tools` `python3 tool.py`
+OR make changes with sommerjobber tool: python3 netbox_tools/tool.py
 
 ```
 
