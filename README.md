@@ -68,10 +68,11 @@ python3 setup_tf.py
 ## Usage
 ```
 Make changes to aci.tf and vmware.tf to your choosing (or use examples).
+
 terraform init
 terraform plan
 terraform apply ; yes
-(OPTIONAL) terraform destroy ; yes
+(OPTIONAL, USE WITH CARE) terraform destroy ; yes
 ``` 
 
 # Infrastructure-as-code using Ansible, Terraform and Gitlab CI/CD  
@@ -104,25 +105,26 @@ pip3 install -r requirements.txt
 ```
 
 ## Usage
-* Make changes to aci.tf and vmware.tf to your choosing (or use examples).
-* Create a project in gitlab
-    * CI/CD variables needed:
-        * `ANSIBLE_VAULT_PASSWORD` ; Password chosen in setup_iac.py (-pv) 
-        * `CI_PUSH_TOKEN` ; User settings > Access Tokens > Choose a Name and check "write_repository"
-        * `CI_PUSH_USER`
-        * `CI_PUSH_URL` ; gitlab.lab.local
-        * `CI_PROJECT_NAME`
-        * `TF_ACI_PASS` ; ACI Password
-        * `TF_OSHIFT_TOKEN` ; Openshift Token (if not existing just add "asd" as Value)
-        * `TF_VC_PASS` ; vCenter Password
-* Clone down your newly created project : `git clone <url>`
-* Copy content of 3.0_iac folder to your project : `cp -r 3.0_iac/ <folder in step above>`
-* Enter your project : `cd <folder in step above>`
-* `git add .`
-* `git commit -m "my awesome iac"`
-* `git push`
-* If you get the following error `remote: You are not allowed to push code to this project.` Run the following (substitute for your environment) `git remote set-url origin http://<username>:<cipushtoken>@$<fqdntogitlab>/<username>/<projectname>.git`
-* `git push`
+```
+Make changes to aci.tf and vmware.tf to your choosing (or use examples).  
+
+Create a project in gitlab  
+  CI/CD variables needed:  
+    - `ANSIBLE_VAULT_PASSWORD` ; Password chosen in setup_iac.py (-pv) 
+    - `CI_PUSH_TOKEN` ; User settings > Access Tokens > Choose a Name and check "write_repository"
+    - `CI_PUSH_USER` ; <gitlab user>
+    - `CI_PUSH_URL` ; <gitlab_fqdn>
+    - `CI_PROJECT_NAME` ; <project name>
+    - `TF_ACI_PASS` ; ACI Password
+    - `TF_VC_PASS` ; vCenter Password
+
+git clone <project url>
+cp -r 3.0_iac/ <folder in step above>
+cd <folder in step above>
+git add .
+git commit -m "my awesome iac"
+git push
+```
 
 #### webinar_part_2
 
@@ -160,10 +162,9 @@ cd ..
 git add .
 git commit -m "[skip ci] new host_vars"
 git push
-If you get the following error `remote: You are not allowed to push code to this project. Run the following (substitute for your environment) git remote set-url origin http://<username>:<cipushtoken>@$<fqdntogitlab>/<username>/<projectname>.git
-git push
 
 Make changes to the ansible/host_vars files according to preferences
+
 git add .
 git commit -m "changes"
 git push
@@ -228,10 +229,9 @@ cd ..
 git add .
 git commit -m "[skip ci] new host_vars"
 git push
-If you get the following error `remote: You are not allowed to push code to this project.` Run the following (substitute for your environment) `git remote set-url origin http://<username>:<cipushtoken>@$<fqdntogitlab>/<username>/<projectname>.git  
-git push
 
 Make changes to the ansible/host_vars files according to preferences  
+
 git add .`  
 git commit -m "changes"`  
 git push`  
@@ -255,4 +255,3 @@ This project is supposed to work as a tutorial on how to get started with Inters
 `Copyright (c) 2020, Miradot AB`
 
 This code is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
-
