@@ -101,7 +101,7 @@ terraform apply ; yes
 These installation instructions assumes you have a python environment with python-pip installed.
 ```
 pip3 install -r requirements.txt
-`python3 setup_iac.py`
+python3 setup_iac.py
 ```
 
 ## Usage
@@ -110,13 +110,13 @@ Make changes to aci.tf and vmware.tf to your choosing (or use examples).
 
 Create a project in gitlab  
   CI/CD variables needed:  
-    - `ANSIBLE_VAULT_PASSWORD` ; Password chosen in setup_iac.py (-pv) 
-    - `CI_PUSH_TOKEN` ; User settings > Access Tokens > Choose a Name and check "write_repository"
-    - `CI_PUSH_USER` ; <gitlab user>
-    - `CI_PUSH_URL` ; <gitlab_fqdn>
-    - `CI_PROJECT_NAME` ; <project name>
-    - `TF_ACI_PASS` ; ACI Password
-    - `TF_VC_PASS` ; vCenter Password
+    - ANSIBLE_VAULT_PASSWORD ; Password chosen in setup_iac.py (-pv) 
+    - CI_PUSH_TOKEN ; User settings > Access Tokens > Choose a Name and check "write_repository"
+    - CI_PUSH_USER ; <gitlab user>
+    - CI_PUSH_URL ; <gitlab_fqdn>
+    - CI_PROJECT_NAME ; <project name>
+    - TF_ACI_PASS ; ACI Password
+    - TF_VC_PASS ; vCenter Password
 
 git clone <project url>
 cp -r 3.0_iac/ <folder in step above>
@@ -148,7 +148,7 @@ python3 setup.py
 
 Create a project in gitlab
   CI/CD variables needed:
-      `ANSIBLE_VAULT_PASSWORD` ; Password chosen in setup_iac.py (-pv) 
+      ANSIBLE_VAULT_PASSWORD ; Password chosen in setup_iac.py (-pv) 
 
 git clone <url to git project>
 cp -r 1.0_nxos_existing_no_netbox/ <folder in step above>
@@ -157,13 +157,13 @@ cd <folder in step above>/ansible
 
 ## Usage
 ```
-ansible-playbook init.yml -i hosts --ask-vault-pass 
+ansible-playbook init.yml -i hosts --ask-vault-pass ; Password chosen in setup.py (-pv)
 cd ..
 git add .
 git commit -m "[skip ci] new host_vars"
 git push
 
-Make changes to the ansible/host_vars files according to preferences
+Make changes to the ansible/host_vars files according to preferences.
 
 git add .
 git commit -m "changes"
@@ -215,22 +215,20 @@ Create a project in gitlab
       ANSIBLE_VAULT_PASSWORD ; Password chosen in setup_iac.py (-pv) 
     Create a pipeline trigger    
 
-git clone <url>
-
+git clone <project url>
 cp -r 2.0_nxos_existing_with_netbox/ <folder in step above>
-
 cd <folder in step above>/ansible
 ```
 
 ## Usage
 ```
-ansible-playbook init.yml -i hosts --ask-vault-pass
+ansible-playbook init.yml -i hosts --ask-vault-pass ; Password chosen in setup.py (-pv)
 cd ..
 git add .
 git commit -m "[skip ci] new host_vars"
 git push
 
-Make changes to the ansible/host_vars files according to preferences  
+Make changes to the ansible/host_vars files according to preferences. 
 
 git add .
 git commit -m "changes"
@@ -248,7 +246,7 @@ If you have questions, concerns, bug reports, etc., please create an issue again
 
 ## Getting involved
 
-This project is supposed to work as a tutorial on how to get started with Intersight. If you have any suggestions on what else to include, feel free to reach ut by creating an issue.
+This project is supposed to work as examples to get started with automation in several areas. If you have any suggestions on what else to include, feel free to reach ut by creating an issue.
 
 ## Licensing info
 
