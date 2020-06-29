@@ -14,3 +14,4 @@ webinar_part_2/2.0_nxos_existing_with_netbox/ansible/group_vars/vault
 webinar_part_2/1.0_nxos_existing_no_netbox/ansible/hosts
 webinar_part_2/1.0_nxos_existing_no_netbox/ansible/group_vars/all
 webinar_part_2/1.0_nxos_existing_no_netbox/ansible/group_vars/vault
+.idea
