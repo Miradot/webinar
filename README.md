@@ -1,5 +1,7 @@
 # Automation webinar (cisco aci, nxos, vmware with more)
 
+[![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/Miradot/intersight_example)
+
 # webinar_part_1
 
 video: https://www.miradot.se/news/webinar-om-automation-del-1/
