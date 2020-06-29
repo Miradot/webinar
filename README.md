@@ -1,6 +1,6 @@
 # Automation webinar (cisco aci, nxos, vmware with more)
 
-#### webinar_part_1
+# webinar_part_1
 
 video: https://www.miradot.se/news/webinar-om-automation-del-1/
 
@@ -126,7 +126,7 @@ git commit -m "my awesome iac"
 git push
 ```
 
-#### webinar_part_2
+# webinar_part_2
 
 video: https://www.miradot.se/news/webinar-om-automation-del-2/
 
