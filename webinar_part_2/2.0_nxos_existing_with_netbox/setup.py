@@ -17,7 +17,7 @@ def create_file(args):
             all_lines[index] = "gitlab_url = '{}'\n".format(args.gitlab_url)
 
         if "host_vars = " in content:
-            all_lines[index] = "host_vars = '{}repository/files/ansible%2Fhost_vars%2F{}?ref=master'\n".format(
+            all_lines[index] = "host_vars = '{}repository/files/ansible%2Fhost_vars%2F{}.yml?ref=master'\n".format(
                 args.gitlab_url.split("trigger")[0], args.nxos_devices[0])
 
     svc.writelines(all_lines)
