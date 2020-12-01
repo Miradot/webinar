@@ -2,6 +2,9 @@ from ansible.module_utils.basic import *
 import re
 import yaml
 import requests
+import sys
+import xml.etree.ElementTree as ET
+
 
 # used in demo scenario because vNXOS has 128 interfaces
 ALLOWED_INTERFACES = [
@@ -52,23 +55,26 @@ def nxos_harvester(filename, hostname, username, password, nxapi_port):
     new_nxos_config = dict()
     interface_vlans = dict()
 
-    vlans = get_nxos_info(hostname, username, password, nxapi_port, "show vlan brief")
+    vlans = get_nxos_info(hostname, username, password, nxapi_port,
+        "show vlan brief")["result"]["body"]["TABLE_vlanbriefxbrief"]["ROW_vlanbriefxbrief"]
 
     for interface in ALLOWED_INTERFACES:
         interface_vlans[interface] = dict()
 
-        for vlan in vlans["result"]["body"]["TABLE_vlanbriefxbrief"]["ROW_vlanbriefxbrief"]:
-            try:
-                if vlan["vlanshowbr-vlanid"] == ("1" and "100"): # ignore vlan 1 and 100 - 100 is a special vxlan-vlan
-                    continue
-            except TypeError: # if TypeError this means that vlan 1 is the only vlan existing, therefore just ignore
-                continue
-            try:
-                if interface in vlan["vlanshowplist-ifidx"]:
-                    interface_vlans[interface]["vlan_id"] = str(vlan["vlanshowbr-vlanid"])
-                    interface_vlans[interface]["vlan_name"] = str(vlan["vlanshowbr-vlanname"])
-            except KeyError: # if KeyError interface does not exist in the vlan-interface list, ignore this and move on
-                pass
+        if type(vlans) == list:
+            for vlan in vlans:
+                try:
+                    if interface in vlan["vlanshowplist-ifidx"]:
+                        interface_vlans[interface]["vlan_id"] = str(vlan["vlanshowbr-vlanid"])
+                        interface_vlans[interface]["vlan_name"] = str(vlan["vlanshowbr-vlanname"])
+                except KeyError: # if KeyError interface does not exist in the vlan-interface list, ignore and move on
+                    pass
+        elif type(vlans) == dict:
+            if interface in vlans["vlanshowplist-ifidx"]:
+                interface_vlans[interface]["vlan_id"] = str(vlans["vlanshowbr-vlanid"])
+                interface_vlans[interface]["vlan_name"] = str(vlans["vlanshowbr-vlanname"])
+
+            #print(vlans["result"]["body"]["TABLE_vlanbriefxbrief"]["ROW_vlanbriefxbrief"])
 
     bgp_neighbor_list = list()
 
@@ -83,12 +89,8 @@ def nxos_harvester(filename, hostname, username, password, nxapi_port):
             bgp["neighbor"] = str(line["neighbor"])
             bgp["remoteas"] = str(line["remoteas"])
 
-            if "L2VPN" in str(line["TABLE_peraf"]["ROW_peraf"]["TABLE_persaf"]["ROW_persaf"]["per-af-name"]):
-                bgp["safi"] = "evpn"
-                bgp["afi"] = "l2vpn"
-            elif "IPv4" in str(line["TABLE_peraf"]["ROW_peraf"]["TABLE_persaf"]["ROW_persaf"]["per-af-name"]):
-                bgp["safi"] = "unicast"
-                bgp["afi"] = "ipv4"
+            bgp["afi"] = str(line["TABLE_peraf"]["ROW_peraf"]["TABLE_persaf"]["ROW_persaf"]["per-af-name"]).split(" ")[0].lower()
+            bgp["safi"] = str(line["TABLE_peraf"]["ROW_peraf"]["TABLE_persaf"]["ROW_persaf"]["per-af-name"]).split(" ")[1].lower()
 
             bgp_neighbor_list.append(bgp)
     except:
@@ -123,18 +125,14 @@ def nxos_parser(filename, nxos_config, interface_vlans):
     new_nxos_config["hostname"] = nxos_config["net_hostname"]
     new_nxos_config["features"] = nxos_config["net_features_enabled"]
 
-    try:
-        new_nxos_config["ntp"] = list()
-        for ntp_server in re.findall(r'ntp (.+) (.+)', nxos_config['net_config']):
-            new_nxos_config["ntp"].append(ntp_server[0].split(" ")[1])
-    except:
-        pass
+    new_nxos_config["ntp"] = list()
+    for ntp_server in re.findall(r'ntp (.+) (.+)', nxos_config['net_config']):
+        new_nxos_config["ntp"].append(ntp_server[0].split(" ")[1])
 
     try:
-        for dns_server in re.findall(r'name-server (.+)', nxos_config['net_config']):
-            new_nxos_config["dns"] = (dns_server.split(" "))
-    except:
-        pass
+        new_nxos_config["dns"] = re.search(r'name-server (.+)', nxos_config['net_config']).group(1).split(" ")
+    except AttributeError:
+        new_nxos_config["dns"] = None
 
     for interface_key, interface_val in nxos_config["net_interfaces"].items():
         if interface_key in ALLOWED_INTERFACES:
@@ -178,8 +176,8 @@ def main():
             module.params["hostname"],
             module.params["username"],
             module.params["password"],
-            module.params["nxapi_port"])
-
+            module.params["nxapi_port"])    
+    
     nxos_parser(module.params["filename"], nxos_config, interface_vlans)
 
     module.exit_json()
