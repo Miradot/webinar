@@ -22,7 +22,7 @@
       - name: "{{ item.name }}"
         access:
           vlan: "{{ item.vlan_id }}"
-  when: item.vlan_id and not item.ipv4 and item.name != "mgmt0"
+  when: item.vlan_id and not item.ipv4 and item.name != "mgmt0" and item.vlan_id != 1
   loop: "{{ hostvars[inventory_hostname].interfaces }}"
 
 - name: delete interface l2 attributes
