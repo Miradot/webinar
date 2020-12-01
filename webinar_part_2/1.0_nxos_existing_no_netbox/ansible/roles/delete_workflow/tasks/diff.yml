@@ -7,11 +7,11 @@
 - name: create tmp configuration file in host_vars from gathered information
   copy:
     content: "{{ ansible_facts | to_nice_yaml }}"
-    dest: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}_tmp"
+    dest: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}_tmp.yml"
 
 - name: gather and reparse configuration tmp file in host_vars with miradot library
   nxos_harvester:
-    filename: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}_tmp"
+    filename: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}_tmp.yml"
     hostname: "{{ inventory_hostname }}"
     username: "{{ ansible_user }}"
     password: "{{ ansible_password }}"
@@ -23,11 +23,11 @@
     username: "{{ ansible_user }}"
     password: "{{ ansible_password }}"
     nxapi_port: "{{ nxapi_port }}"
-    src_file: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}"
-    dst_file: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}_tmp"
+    src_file: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}.yml"
+    dst_file: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}_tmp.yml"
   register: remove
 
 - name: remove tmp configuration file
   file:
-    path: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}_tmp"
+    path: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}_tmp.yml"
     state: absent
