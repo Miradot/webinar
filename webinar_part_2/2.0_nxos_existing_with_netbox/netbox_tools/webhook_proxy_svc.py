@@ -15,7 +15,7 @@ def parse_request():
     data = request.data  # data is empty
 
     try:
-        if not requests.get(host_vars, files=gitlab_payload).status_code == 400:
+        if not requests.get(host_vars, files=gitlab_payload).status_code in (400, 401):
           response = requests.post(gitlab_url, files=gitlab_payload)
 
           pipeline_id = response.json()['id']
