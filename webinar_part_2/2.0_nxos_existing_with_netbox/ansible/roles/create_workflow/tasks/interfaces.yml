@@ -38,5 +38,5 @@
     config:
       - name: "{{ item.name }}"
         enabled: False
-  when: item.name != "mgmt0" and not item.ipv4 and not item.description and not item.vlan_id and item.state == "absent"
+  when: item.name != "mgmt0" and not item.ipv4 and not item.description and (not item.vlan_id or item.vlan_id == "1") and item.state == "absent"
   loop: "{{ hostvars[inventory_hostname].interfaces }}"
