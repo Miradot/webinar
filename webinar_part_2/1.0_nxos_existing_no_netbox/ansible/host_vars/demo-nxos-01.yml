@@ -1,0 +1,61 @@
+bgpneighbors:
+- afi: ipv6
+  neighbor: 1.1.1.2
+  remoteas: '65001'
+  safi: unicast
+- afi: ipv4
+  neighbor: 1.1.1.3
+  remoteas: '65001'
+  safi: unicast
+bgpsystem:
+- localas: '65000'
+  routerid: 1.1.1.1
+dns: null
+features:
+- nxapi
+- bgp
+hostname: demo-nxos-01
+interfaces:
+  Ethernet1/1:
+    description: cust-1
+    ipv4: ''
+    mode: access
+    vlan_id: '100'
+    vlan_name: vlan100
+  Ethernet1/2:
+    description: cust-2
+    ipv4: ''
+    mode: access
+    vlan_id: '200'
+    vlan_name: vlan200
+  Ethernet1/3:
+    description: ''
+    ipv4: ''
+    mode: access
+    vlan_id: '1'
+    vlan_name: default
+  Ethernet1/4:
+    description: ''
+    ipv4: ''
+    mode: access
+    vlan_id: '1'
+    vlan_name: default
+  Ethernet1/5:
+    description: ''
+    ipv4: ''
+    mode: access
+    vlan_id: '1'
+    vlan_name: default
+  Ethernet1/6:
+    description: ''
+    ipv4: ''
+    mode: access
+    vlan_id: '1'
+    vlan_name: default
+  mgmt0:
+    description: ''
+    ipv4: 10.145.145.50/24
+    mode: ''
+    vlan_id: ''
+    vlan_name: ''
+ntp: []
