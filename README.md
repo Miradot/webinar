@@ -4,7 +4,7 @@
 
 # webinar_part_1
 
-video: https://www.miradot.se/news/webinar-om-automation-del-1/
+video: https://www.miradot.se/post/automation-webinar-del-1 
 
 # Ansible  
 ## Prerequisites
@@ -130,7 +130,7 @@ git push
 
 # webinar_part_2
 
-video: https://www.miradot.se/news/webinar-om-automation-del-2/
+video: https://www.miradot.se/post/automation-webinar-del-2 
 
 # NXOS with ansible and Gitlab CD/CD
 ## Prerequisites:
